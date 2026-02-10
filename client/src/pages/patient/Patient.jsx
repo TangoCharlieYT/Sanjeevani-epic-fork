@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Backdrop, CircularProgress } from "@mui/material";
+import { Box, Card, CardContent, Typography, Backdrop, CircularProgress } from "@mui/material";
 import useEth from "../../contexts/EthContext/useEth";
 import Record from "../../components/Record";
 
@@ -70,20 +70,62 @@ const Patient = () => {
   }
 
   return (
-    <Box display="flex" justifyContent="center" width="100vw">
-      <Box width={{ xs: "90%", sm: "60%" }} my={5}>
-        <Typography variant="h4" mb={3}>
-          My Records
-        </Typography>
+    <Box display="flex" justifyContent="center" width="100%" sx={{ minHeight: '100vh', p: { xs: 1, md: 2 } }}>
+      <Box width={{ xs: "100%", sm: "90%", md: "70%" }}>
+        {/* Header Card */}
+        <Card sx={{
+          mb: 4,
+          background: 'linear-gradient(135deg, #00bcd4 0%, #0087a8 100%)',
+          color: 'white',
+          boxShadow: 6,
+          animation: 'fadeInDown 0.6s ease-in-out',
+          '@keyframes fadeInDown': {
+            from: { opacity: 0, transform: 'translateY(-20px)' },
+            to: { opacity: 1, transform: 'translateY(0)' },
+          },
+        }}>
+          <CardContent>
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              📁 My Medical Records
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
+              Securely stored on the blockchain • encrypted with IPFS
+            </Typography>
+          </CardContent>
+        </Card>
 
+        {/* Records List */}
         {records.length === 0 ? (
-          <Box display="flex" justifyContent="center" my={5}>
-            <Typography variant="h5">No records found</Typography>
-          </Box>
+          <Card sx={{
+            boxShadow: 2,
+            background: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
+            animation: 'fadeInUp 0.6s ease-in-out 0.2s both',
+            '@keyframes fadeInUp': {
+              from: { opacity: 0, transform: 'translateY(20px)' },
+              to: { opacity: 1, transform: 'translateY(0)' },
+            },
+          }}>
+            <CardContent sx={{ py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography variant="h6" color="textSecondary" mb={1}>
+                📭 No Records Yet
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Your medical records will appear here once your doctor uploads them.
+              </Typography>
+            </CardContent>
+          </Card>
         ) : (
           <Box display="flex" flexDirection="column" gap={2}>
             {records.map((record, index) => (
-              <Record key={index} record={record} />
+              <Box key={index} sx={{
+                animation: `fadeIn 0.4s ease-in-out ${0.3 + index * 0.1}s both`,
+                '@keyframes fadeIn': {
+                  from: { opacity: 0 },
+                  to: { opacity: 1 },
+                },
+              }}>
+                <Record record={record} />
+              </Box>
             ))}
           </Box>
         )}

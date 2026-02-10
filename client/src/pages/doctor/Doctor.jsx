@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from "react";
 import {
   Box,
+  Card,
+  CardContent,
   Divider,
   FormControl,
   Modal,
@@ -8,6 +10,7 @@ import {
   Typography,
   Backdrop,
   CircularProgress,
+  Chip,
 } from "@mui/material";
 import CustomButton from "../../components/CustomButton";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
@@ -151,8 +154,8 @@ const addRecordCallback = useCallback(
   }
 
   return (
-    <Box display="flex" justifyContent="center" width="100vw">
-      <Box width={{ xs: "90%", sm: "60%" }} my={5}>
+    <Box display="flex" justifyContent="center" width="100%" sx={{ minHeight: '100vh', p: { xs: 1, md: 2 } }}>
+      <Box width={{ xs: "100%", sm: "90%", md: "70%" }}>
         <Modal open={addRecord} onClose={() => setAddRecord(false)}>
           <AddRecordModal
             handleClose={() => setAddRecord(false)}
@@ -161,71 +164,146 @@ const addRecordCallback = useCallback(
           />
         </Modal>
 
-        <Typography variant="h4" mb={2}>
-          Patient Records
-        </Typography>
+        {/* Search Section */}
+        <Card sx={{
+          mb: 4,
+          background: 'linear-gradient(135deg, #00796b 0%, #004d40 100%)',
+          color: 'white',
+          boxShadow: 6,
+          animation: 'fadeInDown 0.6s ease-in-out',
+          '@keyframes fadeInDown': {
+            from: { opacity: 0, transform: 'translateY(-20px)' },
+            to: { opacity: 1, transform: 'translateY(0)' },
+          },
+        }}>
+          <CardContent>
+            <Typography variant="h5" mb={3} sx={{ fontWeight: 600 }}>
+              🔍 Search Patient Records
+            </Typography>
 
-        <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} alignItems="center" gap={2} mb={2}>
-          <FormControl fullWidth>
-            <TextField
-              variant="outlined"
-              placeholder="Search patient by wallet address"
-              value={searchPatientAddress}
-              onChange={(e) => setSearchPatientAddress(e.target.value)}
-              size="small"
-              inputProps={{ style: { fontSize: 15 } }}
-            />
-          </FormControl>
+            <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} alignItems="flex-end" gap={2}>
+              <FormControl fullWidth>
+                <TextField
+                  variant="outlined"
+                  placeholder="Enter patient wallet address (0x...)"
+                  value={searchPatientAddress}
+                  onChange={(e) => setSearchPatientAddress(e.target.value)}
+                  size="small"
+                  sx={{
+                    '& .MuiInputBase-root': {
+                      backgroundColor: 'rgba(255,255,255,0.15)',
+                      color: 'white',
+                      borderRadius: 1,
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'rgba(255,255,255,0.7)',
+                      opacity: 1,
+                    },
+                  }}
+                />
+              </FormControl>
 
-          <CustomButton text="Search" handleClick={searchPatient}>
-            <SearchRoundedIcon style={{ color: "white" }} />
-          </CustomButton>
+              <CustomButton text="Search" handleClick={searchPatient}>
+                <SearchRoundedIcon style={{ color: "white" }} />
+              </CustomButton>
 
-          <CustomButton text="New Record" handleClick={() => setAddRecord(true)} disabled={!patientExist}>
-            <CloudUploadRoundedIcon style={{ color: "white" }} />
-          </CustomButton>
-        </Box>
+              {patientExist && (
+                <Chip label="Patient Found ✓" color="success" variant="outlined" sx={{ color: 'white', borderColor: 'white' }} />
+              )}
+            </Box>
+          </CardContent>
+        </Card>
 
-        {patientExist && records.length === 0 && (
-          <Box display="flex" justifyContent="center" my={5}>
-            <Typography variant="h5">No records found</Typography>
-          </Box>
-        )}
-
-        {patientExist && records.length > 0 && (
-          <Box display="flex" flexDirection="column" mt={3} mb={-2}>
-            {records.map((record, index) => (
-              <Box key={index} mb={2}>
-                <Record record={record} />
+        {/* Records Section */}
+        {patientExist && (
+          <Card sx={{
+            mb: 4,
+            boxShadow: 4,
+            animation: 'fadeInUp 0.6s ease-in-out 0.2s both',
+            '@keyframes fadeInUp': {
+              from: { opacity: 0, transform: 'translateY(20px)' },
+              to: { opacity: 1, transform: 'translateY(0)' },
+            },
+          }}>
+            <CardContent>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  📋 Patient Records ({records.length})
+                </Typography>
+                <CustomButton text="+ New Record" handleClick={() => setAddRecord(true)}>
+                  <CloudUploadRoundedIcon style={{ color: "white" }} />
+                </CustomButton>
               </Box>
-            ))}
-          </Box>
+
+              {records.length === 0 ? (
+                <Box display="flex" justifyContent="center" py={5}>
+                  <Typography variant="body1" color="textSecondary">
+                    No records found for this patient
+                  </Typography>
+                </Box>
+              ) : (
+                <Box display="flex" flexDirection="column" gap={2}>
+                  {records.map((record, index) => (
+                    <Box key={index} sx={{
+                      animation: `fadeIn 0.4s ease-in-out ${0.3 + index * 0.1}s both`,
+                      '@keyframes fadeIn': {
+                        from: { opacity: 0 },
+                        to: { opacity: 1 },
+                      },
+                    }}>
+                      <Record record={record} />
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </CardContent>
+          </Card>
         )}
 
-        <Box mt={6} mb={4}>
-          <Divider />
-        </Box>
+        {/* Register Patient Section */}
+        <Card sx={{
+          background: 'linear-gradient(135deg, #0097a7 0%, #00695c 100%)',
+          color: 'white',
+          boxShadow: 6,
+          animation: 'fadeInUp 0.6s ease-in-out 0.4s both',
+          '@keyframes fadeInUp': {
+            from: { opacity: 0, transform: 'translateY(20px)' },
+            to: { opacity: 1, transform: 'translateY(0)' },
+          },
+        }}>
+          <CardContent>
+            <Typography variant="h5" mb={3} sx={{ fontWeight: 600 }}>
+              ➕ Register New Patient
+            </Typography>
 
-        <Typography variant="h4" mb={2}>
-          Register Patient
-        </Typography>
+            <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} alignItems="flex-end" gap={2}>
+              <FormControl fullWidth>
+                <TextField
+                  variant="outlined"
+                  placeholder="Enter patient wallet address (0x...)"
+                  value={addPatientAddress}
+                  onChange={(e) => setAddPatientAddress(e.target.value)}
+                  size="small"
+                  sx={{
+                    '& .MuiInputBase-root': {
+                      backgroundColor: 'rgba(255,255,255,0.15)',
+                      color: 'white',
+                      borderRadius: 1,
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: 'rgba(255,255,255,0.7)',
+                      opacity: 1,
+                    },
+                  }}
+                />
+              </FormControl>
 
-        <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} alignItems="center" gap={2}>
-          <FormControl fullWidth>
-            <TextField
-              variant="outlined"
-              placeholder="Register patient by wallet address"
-              value={addPatientAddress}
-              onChange={(e) => setAddPatientAddress(e.target.value)}
-              size="small"
-              inputProps={{ style: { fontSize: 15 } }}
-            />
-          </FormControl>
-
-          <CustomButton text="Register" handleClick={registerPatient}>
-            <PersonAddAlt1RoundedIcon style={{ color: "white" }} />
-          </CustomButton>
-        </Box>
+              <CustomButton text="Register" handleClick={registerPatient}>
+                <PersonAddAlt1RoundedIcon style={{ color: "white" }} />
+              </CustomButton>
+            </Box>
+          </CardContent>
+        </Card>
       </Box>
     </Box>
   );

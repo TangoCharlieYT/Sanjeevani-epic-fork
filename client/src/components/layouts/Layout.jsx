@@ -3,7 +3,7 @@ import { AppBar, Chip, Toolbar, Box, Typography } from "@mui/material";
 import { Outlet } from "react-router-dom"; // Add this import
 import useEth from "../../contexts/EthContext/useEth";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
-import logo from "../../assets/tealNoBG-cropped.png";
+import logo from "../../assets/LogoTealBG.jpg";
 import { grey, teal } from "@mui/material/colors";
 
 const HeaderAppBar = () => {

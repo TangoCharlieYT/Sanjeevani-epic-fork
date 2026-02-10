@@ -1,6 +1,9 @@
 import React, { useContext } from "react";
 import { EthProvider } from "./contexts/EthContext";
 import EthContext from "./contexts/EthContext/EthContext";
+import AuthProvider from "./contexts/AuthContext/AuthProvider";
+import useAuth from "./contexts/AuthContext/useAuth";
+import Login from "./components/Auth/Login";
 import { AlertProvider } from "./contexts/AlertContext/AlertContext";
 import { useRoutes, Navigate } from "react-router-dom";
 import routes from "./routes"; // Verify this import points to the correct file
@@ -10,6 +13,7 @@ window.global = window;
 
 function AppContent() {
   const { state } = useContext(EthContext);
+  const { user } = useAuth();
   
   // FIX: Added a safety check to ensure routes is an array before passing to useRoutes
   const routesArray = Array.isArray(routes) ? routes : [];
@@ -19,14 +23,20 @@ function AppContent() {
     return <div style={{ textAlign: "center", marginTop: "20%" }}>Loading Blockchain Data...</div>;
   }
 
-  if (state.role === "unknown") {
+  // Allow public access to home ('/') without login, otherwise require login
+  const path = window.location.pathname || "/";
+  if (!user && path !== "/") {
+    return <Login />;
+  }
+
+  if (state.role === "unknown" && path !== "/") {
     return <Register />;
   }
 
-  // Redirect logic to send doctors/patients to their specific dashboards
-  if (window.location.pathname === "/") {
-    if (state.role === "doctor") return <Navigate to="/doctor" replace />;
-    if (state.role === "patient") return <Navigate to="/patient" replace />;
+  // Redirect logic to send doctors/patients to their specific dashboards when on root
+  if (path === "/") {
+    if (user && state.role === "doctor") return <Navigate to="/doctor" replace />;
+    if (user && state.role === "patient") return <Navigate to="/patient" replace />;
   }
 
   return <div id="App">{content}</div>;
@@ -35,9 +45,11 @@ function AppContent() {
 function App() {
   return (
     <EthProvider>
-      <AlertProvider>
-        <AppContent />
-      </AlertProvider>
+      <AuthProvider>
+        <AlertProvider>
+          <AppContent />
+        </AlertProvider>
+      </AuthProvider>
     </EthProvider>
   );
 }

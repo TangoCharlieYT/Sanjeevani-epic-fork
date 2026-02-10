@@ -25,7 +25,18 @@ const EthProvider = ({ children }) => {
 
       let role = "unknown";
       if (contract && accounts.length > 0) {
-        role = await contract.methods.getSenderRole().call({ from: accounts[0] });
+        try {
+          const rawRole = await contract.methods.getSenderRole().call({ from: accounts[0] });
+          // Normalize role to a predictable lowercase string
+          if (typeof rawRole === "string") {
+            role = rawRole.toLowerCase().trim();
+          } else {
+            role = String(rawRole).toLowerCase().trim();
+          }
+        } catch (err) {
+          console.error("getSenderRole failed:", err);
+          role = "unknown";
+        }
       }
 
       dispatch({

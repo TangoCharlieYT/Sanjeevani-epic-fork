@@ -12,8 +12,9 @@ import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import CustomButton from "../components/CustomButton";
 import useEth from "../contexts/EthContext/useEth";
+import useAuth from "../contexts/AuthContext/useAuth";
 import BackgroundVideo from "../assets/BackgroundVideo.mp4";
-import logo from "../assets/tealNoBG-cropped.png";
+import logo from "../assets/LogoTealBG.jpg";
 import "../App.css";
 
 const Home = () => {
@@ -32,7 +33,26 @@ const Home = () => {
     }
   };
 
+  const { user, login } = useAuth();
+
   const ActionSection = () => {
+    // If user is not logged in, show prominent login CTA
+    if (!user) {
+      return (
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <Typography variant="h5" color="white" mb={2}>
+            Welcome — connect your wallet to manage records securely
+          </Typography>
+          <CustomButton text="Login with MetaMask" handleClick={login}>
+            <AccountBalanceWalletRoundedIcon style={{ color: "white" }} />
+          </CustomButton>
+          <Box mt={3}>
+            <Typography variant="body2" color="white">Future features preview: secure sharing, analytics, doctor directory (coming soon)</Typography>
+          </Box>
+        </Box>
+      );
+    }
+
     if (!accounts) {
       return (
         <Typography variant="h5" color="white">

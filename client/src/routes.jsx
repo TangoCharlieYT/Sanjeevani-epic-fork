@@ -1,5 +1,5 @@
 import React from "react";
-import Layout from './components/layouts/Layout';
+import Layout from './components/layouts/MainLayout';
 import AlertPopup from './components/layouts/AlertPopup';
 import Home from './pages/Home';
 import Patient from './pages/patient/Patient';

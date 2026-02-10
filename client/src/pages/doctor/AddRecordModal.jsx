@@ -1,7 +1,8 @@
 import React, { useState, useCallback, forwardRef } from 'react';
-import { Box, Chip, IconButton, Typography, Paper } from '@mui/material';
+import { Box, Chip, IconButton, Typography, Paper, Fade } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import { useDropzone } from 'react-dropzone';
 import CustomButton from '../../components/CustomButton';
 import useAlert from '../../contexts/AlertContext/useAlert';
@@ -11,6 +12,7 @@ const AddRecordModal = forwardRef(({ handleClose, handleUpload, patientAddress }
   const { setAlert } = useAlert();
   const [file, setFile] = useState(null);
   const [buffer, setBuffer] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const onDrop = useCallback((acceptedFiles) => {
     if (!acceptedFiles || acceptedFiles.length === 0) return;
@@ -33,86 +35,151 @@ const AddRecordModal = forwardRef(({ handleClose, handleUpload, patientAddress }
     multiple: false,
   });
 
+  const handleUploadClick = async () => {
+    setIsUploading(true);
+    try {
+      await handleUpload(buffer, file.name, patientAddress);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
-    <Box
-      ref={ref} // Attach the ref here
-      tabIndex="-1" // Ensures the Box can receive focus for accessibility
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        width: '100vw',
-        outline: 'none', // Remove focus border
-      }}
-    >
-      <Paper
-        elevation={24}
+    <Fade in={true} timeout={400}>
+      <Box
+        ref={ref}
+        tabIndex="-1"
         sx={{
-          position: 'relative',
-          width: { xs: '90%', sm: '50%' },
-          p: 3,
-          borderRadius: 2,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          width: '100vw',
+          outline: 'none',
+          background: 'rgba(0, 0, 0, 0.5)',
         }}
       >
-        <IconButton
-          onClick={handleClose}
-          sx={{ position: 'absolute', top: 8, right: 8 }}
-        >
-          <CloseRoundedIcon />
-        </IconButton>
-
-        <Typography variant="h4" mb={2}>
-          Add Record
-        </Typography>
-
-        <Box
-          {...getRootProps()}
+        <Paper
+          elevation={24}
           sx={{
+            position: 'relative',
+            width: { xs: '90%', sm: '60%', md: '50%' },
             p: 4,
-            textAlign: 'center',
-            border: '2px dashed grey',
-            borderRadius: 2,
-            cursor: 'pointer',
-            bgcolor: isDragActive ? 'grey.100' : 'inherit',
+            borderRadius: '16px',
+            background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+            border: '2px solid rgba(0, 121, 107, 0.1)',
+            animation: 'slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+            '@keyframes slideUp': {
+              from: { opacity: 0, transform: 'translateY(40px)' },
+              to: { opacity: 1, transform: 'translateY(0)' },
+            },
           }}
         >
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <Typography>Drop the file here ...</Typography>
-          ) : (
-            <Typography>
-              Drag & drop a file here, or click to select a file
+          <IconButton
+            onClick={handleClose}
+            disabled={isUploading}
+            sx={{ 
+              position: 'absolute', 
+              top: 16, 
+              right: 16,
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                background: 'rgba(0, 121, 107, 0.1)',
+                transform: 'rotate(90deg)',
+              },
+            }}
+          >
+            <CloseRoundedIcon sx={{ fontSize: 28 }} />
+          </IconButton>
+
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#00796b', mb: 1 }}>
+              📤 Upload Medical Record
+            </Typography>
+            <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.9rem' }}>
+              Select a file to upload and secure on IPFS
+            </Typography>
+          </Box>
+
+          <Box
+            {...getRootProps()}
+            sx={{
+              p: 4,
+              textAlign: 'center',
+              border: '2px dashed',
+              borderColor: isDragActive ? '#00796b' : 'rgba(0, 121, 107, 0.3)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              background: isDragActive 
+                ? 'linear-gradient(135deg, rgba(0, 121, 107, 0.08) 0%, rgba(0, 188, 212, 0.08) 100%)'
+                : 'rgba(0, 121, 107, 0.03)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                borderColor: '#00796b',
+                background: 'linear-gradient(135deg, rgba(0, 121, 107, 0.08) 0%, rgba(0, 188, 212, 0.08) 100%)',
+              },
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            <input {...getInputProps()} disabled={isUploading} />
+            <Box sx={{ position: 'relative', zIndex: 1 }}>
+              <CloudUploadRoundedIcon sx={{ fontSize: 48, color: isDragActive ? '#00796b' : 'rgba(0, 121, 107, 0.5)', mb: 2, transition: 'all 0.3s ease' }} />
+              <Typography variant="h6" sx={{ fontWeight: 600, color: '#00796b', mb: 1 }}>
+                {isDragActive ? '📥 Drop file here' : '📁 Drag & drop your file'}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                or click to browse
+              </Typography>
+            </Box>
+          </Box>
+
+          {file && (
+            <Fade in={true} timeout={300}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mt: 3,
+                  p: 2,
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, rgba(0, 121, 107, 0.05) 0%, rgba(76, 175, 80, 0.05) 100%)',
+                  border: '1px solid rgba(76, 175, 80, 0.2)',
+                }}
+              >
+                <Box display="flex" alignItems="center" gap={2}>
+                  <CheckCircleRoundedIcon sx={{ fontSize: 28, color: '#4caf50' }} />
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#00796b' }}>
+                      ✓ File selected
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary" sx={{ wordBreak: 'break-all' }}>
+                      {file.name}
+                    </Typography>
+                  </Box>
+                </Box>
+                <CustomButton
+                  text={isUploading ? "Uploading..." : "Upload"}
+                  handleClick={handleUploadClick}
+                  disabled={!buffer || isUploading}
+                >
+                  <CloudUploadRoundedIcon style={{ color: "white" }} />
+                </CustomButton>
+              </Box>
+            </Fade>
+          )}
+
+          {!file && (
+            <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 2, textAlign: 'center' }}>
+              Max file size: 100MB | Supported: PDF, DOCX, JPG, PNG, etc.
             </Typography>
           )}
-        </Box>
-
-        {file && (
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mt={2}
-          >
-            <Chip
-              label={file.name}
-              onDelete={() => {
-                setFile(null);
-                setBuffer(null);
-              }}
-            />
-            <CustomButton
-              text="Upload"
-              handleClick={() => handleUpload(buffer, file.name, patientAddress)}
-              disabled={!file || !buffer}
-            >
-              <CloudUploadRoundedIcon style={{ color: 'white' }} />
-            </CustomButton>
-          </Box>
-        )}
-      </Paper>
-    </Box>
+        </Paper>
+      </Box>
+    </Fade>
   );
 });
 
+AddRecordModal.displayName = 'AddRecordModal';
 export default AddRecordModal;
