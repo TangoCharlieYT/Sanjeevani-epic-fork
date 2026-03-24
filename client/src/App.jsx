@@ -52,7 +52,7 @@ function AppContent() {
     return <Register />;
   }
 
- 
+
 
   return <div id="App">{content}</div>;
 }
