@@ -20,11 +20,8 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-<<<<<<< main
   Button,
-=======
   Fade,
->>>>>>> main
 } from "@mui/material";
 import CustomButton from "../../components/CustomButton";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
@@ -374,16 +371,7 @@ const Doctor = () => {
             patientAddress={selectedPatient}
           />
         </Modal>
-
-<<<<<<< main
-=======
-        {/* ===== LEVEL 1: ALWAYS VISIBLE ===== */}
-        <Typography variant="h4" sx={{ color: 'teal', mb: 3, fontWeight: 'bold' }}>
-          Doctor Dashboard
-        </Typography>
-
         {/* Dashboard Stats + Recent Activity */}
->>>>>>> main
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {/* Stats Card */}
           <Grid item xs={12} md={5}>
@@ -474,19 +462,12 @@ const Doctor = () => {
               <FormControl fullWidth>
                 <TextField
                   variant="outlined"
-<<<<<<< main
-                  placeholder="Patient wallet address"
-                  value={searchPatientAddress}
-                  onChange={(e) => setSearchPatientAddress(e.target.value)}
-                  size="medium"
-=======
                   label="Patient wallet address"
                   placeholder="0x..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   size="small"
                   disabled={isSearching}
->>>>>>> main
                   sx={{
                     bgcolor: 'white',
                     borderRadius: 2,
@@ -509,30 +490,6 @@ const Doctor = () => {
                 />
               </FormControl>
 
-<<<<<<< main
-              <Button 
-                variant="contained" 
-                onClick={searchPatient}
-                sx={{ 
-                  backgroundColor: '#0f766e', 
-                  color: 'white', 
-                  px: 4,
-                  fontSize: '1rem',
-                  borderRadius: 2,
-                  boxShadow: 'none',
-                  whiteSpace: 'nowrap',
-                  '&:hover': {
-                    backgroundColor: '#0b504b',
-                    boxShadow: 'none',
-                  }
-                }}
-              >
-                Search
-              </Button>
-
-              {patientExist && (
-                <Chip label="Patient Found" color="success" sx={{ alignSelf: 'center', height: 48, borderRadius: 2, px: 1, fontWeight: 600 }} />
-=======
               <CustomButton 
                 text={isSearching ? "Searching..." : "Search"} 
                 handleClick={searchPatient}
@@ -543,7 +500,6 @@ const Doctor = () => {
 
               {patientExists && (
                 <Chip label="Patient Found" color="success" variant="outlined" sx={{ color: "white", borderColor: "white", height: 40 }} />
->>>>>>> main
               )}
             </Box>
 
