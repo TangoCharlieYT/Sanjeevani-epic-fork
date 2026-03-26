@@ -168,11 +168,11 @@ export const combineRecordsForProcessing = (
       return `
 [RECORD ${index + 1}]
 File: ${record.fileName || "Unknown"}
-Date: ${
-        record.timestamp
-          ? new Date(parseInt(record.timestamp) * 1000).toLocaleDateString()
-          : "Unknown"
-      }
+        Date: ${
+          (record.timeAdded ?? record.timestamp)
+            ? new Date(parseInt(record.timeAdded ?? record.timestamp) * 1000).toLocaleDateString()
+            : "Unknown"
+        }
 Content: ${record.content || "No content"}
 ---`;
     })

@@ -281,7 +281,7 @@ const Reports = () => {
               return {
                 index: index + 1,
                 fileName: record.fileName,
-                timestamp: record.timestamp,
+                timestamp: record.timeAdded ?? record.timestamp,
                 content:
                   typeof content === "string"
                     ? content.substring(0, 1000) // Limit content size
@@ -292,7 +292,7 @@ const Reports = () => {
               return {
                 index: index + 1,
                 fileName: record.fileName,
-                timestamp: record.timestamp,
+                timestamp: record.timeAdded ?? record.timestamp,
                 content: `[Failed to extract: ${err.message}]`,
               };
             }
@@ -742,8 +742,8 @@ const DoctorReportSection = ({
                     <ListItemText
                       primary={record.fileName || `Record ${index + 1}`}
                       secondary={
-                        record.timestamp
-                          ? new Date(parseInt(record.timestamp) * 1000).toLocaleDateString()
+                        (record.timeAdded ?? record.timestamp)
+                          ? new Date(parseInt(record.timeAdded ?? record.timestamp) * 1000).toLocaleDateString()
                           : "Unknown date"
                       }
                     />
@@ -900,8 +900,8 @@ const PatientReportSection = ({
                     <ListItemText
                       primary={record.fileName || `Record ${index + 1}`}
                       secondary={
-                        record.timestamp
-                          ? new Date(parseInt(record.timestamp) * 1000).toLocaleDateString()
+                        (record.timeAdded ?? record.timestamp)
+                          ? new Date(parseInt(record.timeAdded ?? record.timestamp) * 1000).toLocaleDateString()
                           : "Unknown date"
                       }
                     />

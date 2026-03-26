@@ -13,6 +13,7 @@ import BlockRoundedIcon from '@mui/icons-material/BlockRounded';
 import SecurityRoundedIcon from '@mui/icons-material/SecurityRounded';
 import CloudUploadRoundedIcon from '@mui/icons-material/CloudUploadRounded';
 import useEth from "../../contexts/EthContext/useEth";
+import useAlert from "../../contexts/AlertContext/useAlert";
 import Record from "../../components/Record";
 import uploadToIPFS from "../../ipfs";
 import AddRecordModal from "../doctor/AddRecordModal";
@@ -21,6 +22,7 @@ const Patient = () => {
   const {
     state: { contract, accounts, role, loading },
   } = useEth();
+  const { setAlert } = useAlert();
 
   const [records, setRecords] = useState([]);
   const [loadingRecords, setLoadingRecords] = useState(true);
@@ -116,7 +118,7 @@ const Patient = () => {
   // --- Consent Functions ---
   const handleGrantAccess = async () => {
     if (!grantAddress || !/^(0x)?[0-9a-f]{40}$/i.test(grantAddress)) {
-      alert("Please enter a valid Doctor Ethereum address");
+      setAlert("Please enter a valid Doctor Ethereum address", "error");
       return;
     }
     setLoadingRecords(true);
@@ -126,7 +128,7 @@ const Patient = () => {
       setManagingConsent(prev => !prev); // triggers re-fetch
     } catch (err) {
       console.error(err);
-      alert("Failed to grant access. Ensure they are a registered doctor.");
+      setAlert("Failed to grant access. Ensure they are a registered doctor.", "error");
     } finally {
       setLoadingRecords(false);
     }
@@ -139,7 +141,7 @@ const Patient = () => {
       setManagingConsent(prev => !prev);
     } catch (err) {
       console.error(err);
-      alert("Failed to revoke access.");
+      setAlert("Failed to revoke access.", "error");
     } finally {
       setLoadingRecords(false);
     }
@@ -152,7 +154,7 @@ const Patient = () => {
       setManagingConsent(prev => !prev);
     } catch (err) {
       console.error(err);
-      alert("Failed to grant access.");
+      setAlert("Failed to grant access.", "error");
     } finally {
       setLoadingRecords(false);
     }
@@ -174,26 +176,47 @@ const Patient = () => {
   // ===== SELF-UPLOAD FUNCTIONS =====
   const handleAddRecordUpload = useCallback(
     async (buffer, fileName, patientAddress, metadataStr) => {
+      if (!contract || !accounts?.length) {
+        setAlert("Connect MetaMask and ensure the contract is available before uploading.", "error");
+        return;
+      }
+
+      if (!buffer || !fileName) {
+        setAlert("Please select a file or create a note before uploading.", "error");
+        return;
+      }
+
+      setLoadingRecords(true);
       try {
         const ipfsHash = await uploadToIPFS(buffer, fileName);
-        if (ipfsHash) {
-          // Use addRecordAsSelf instead of addRecord
-          await contract.methods
-            .addRecordAsSelf(ipfsHash, fileName, metadataStr)
-            .send({ from: accounts[0] });
-
-          alert("Your record has been uploaded successfully!");
-          setAddRecordModalOpen(false);
-          
-          // Refresh records
-          setManagingConsent(prev => !prev);
+        if (!ipfsHash) {
+          throw new Error("IPFS upload did not return a file hash.");
         }
+
+        await contract.methods
+          .addRecordAsSelf(ipfsHash, fileName, metadataStr)
+          .send({ from: accounts[0] });
+
+        const recs = await contract.methods
+          .getRecords(accounts[0])
+          .call({ from: accounts[0] });
+
+        setRecords(recs || []);
+        setAddRecordModalOpen(false);
+        setAlert("New record uploaded and secured on blockchain", "success");
       } catch (err) {
         console.error(err);
-        alert("Failed to upload record: " + err.message);
+        const errorMessage =
+          err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Record upload failed. Check console for details.";
+        setAlert(`Failed to upload record: ${errorMessage}`, "error");
+      } finally {
+        setLoadingRecords(false);
       }
     },
-    [accounts, contract]
+    [accounts, contract, setAlert]
   );
 
   // --- Status Screens ---

@@ -176,8 +176,8 @@ export const generateRecordsSummaryPDF = (records, patientInfo = {}) => {
     const displayName = fileName.length > 35 ? fileName.substring(0, 32) + "..." : fileName;
     doc.text(displayName, margin, yPosition);
 
-    const date = record.timestamp
-      ? new Date(parseInt(record.timestamp) * 1000).toLocaleDateString()
+    const date = (record.timeAdded ?? record.timestamp)
+      ? new Date(parseInt(record.timeAdded ?? record.timestamp) * 1000).toLocaleDateString()
       : "Unknown";
     doc.text(date, margin + 90, yPosition);
 
